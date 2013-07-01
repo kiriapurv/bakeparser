@@ -35,10 +35,10 @@ public class Main {
 					
 					builder.addRequest("channel>item", podcast, "newItem", null, null,"addItem");
 					builder.addRequest("channel>item>title", podcast, null,"setItemTitle", null,null);
-					builder.addRequest("channel>item>link", podcast, null,"setItemLink", null,null);
-					builder.addRequest("channel>item>pubDate", podcast, null,"setItemPubDate", null,null);
+					builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
+					builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
 					builder.addRequest("channel>item>description", podcast, null,"setItemDescription", null,null);
-					builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "setItemEnclosure",null);
+					builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "setItemEnclosure","closeItemEnclosure");
 					return builder;
 				}
 
@@ -79,6 +79,29 @@ public class Main {
 
 	public static class NasaPodcasts
 	{
+		public OO getOO()
+		{
+			return new OO();
+		}
+		public static class OO
+		{
+			public void setText(String text)
+			{
+				p("OO --- > "+text);
+			}
+			
+			public BB getBB()
+			{
+				return new BB();
+			}
+			public static class BB
+			{
+				public void setText(String text)
+				{
+					p("BB --- > "+text);
+				}
+			}
+		}
 		private String title,link,description;
 		private Item currentItem;
 		private LinkedList<Item> items;
@@ -164,6 +187,12 @@ public class Main {
 				currentItem.enclosureType=value;
 			}
 		}
+		
+		public void closeItemEnclosure()
+		{
+			p("//--------- Item Enclosure");
+		}
+		
 		
 		
 		
