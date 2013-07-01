@@ -75,7 +75,10 @@ public class BakeParser {
 		{
 			requests.add(new BakeParserRequest(tagName, callObject,startMethodName ,contentMethodName, parameterMethodName,endTagMethod));
 		}
-		
+		public void addRequest(String tagName, Object callObject, String callObjectGetter,String startMethodName, String contentMethodName,String parameterMethodName,String endTagMethod)
+		{
+			requests.add(new BakeParserRequest(tagName, callObject, callObjectGetter ,startMethodName ,contentMethodName, parameterMethodName,endTagMethod));
+		}
 		public void setStartTag(String startTag)
 		{
 			this.startTag = startTag;
@@ -92,13 +95,24 @@ public class BakeParser {
 		
 		public static class BakeParserRequest
 		{
-			private String tagName,contentMethodName,parameterMethodName,endTagMethod,startTagMethod;
+			private String tagName,contentMethodName,parameterMethodName,endTagMethod,startTagMethod,objectGetter;
 			private Object callObject;
-			
+			private boolean objectGetterMode = false;
 			public BakeParserRequest(String tagName, Object callObject,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
 			{
 				this.tagName = tagName;
 				this.callObject = callObject;
+				this.contentMethodName = contentMethodName;
+				this.parameterMethodName = parameterMethodName;
+				this.endTagMethod = endTagMethod;
+				this.startTagMethod = startTagMethod;
+			}
+			public BakeParserRequest(String tagName,Object callObject,String objectGetter,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
+			{
+				this.tagName = tagName;
+				this.callObject = callObject;
+				this.objectGetter = objectGetter;
+				objectGetterMode = true;
 				this.contentMethodName = contentMethodName;
 				this.parameterMethodName = parameterMethodName;
 				this.endTagMethod = endTagMethod;
@@ -130,73 +144,147 @@ public class BakeParser {
 			 */
 			public void callContentMethod(String content)
 			{
-				if(contentMethodName!=null)
-				{
-					try {
-						callObject.getClass().getMethod(contentMethodName, String.class).invoke(callObject, content);
-					} catch (NoSuchMethodException | SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				
+					if(contentMethodName!=null)
+					{
+						if(!objectGetterMode)
+						{
+							try {
+								callObject.getClass().getMethod(contentMethodName, String.class).invoke(callObject, content);
+							} catch (NoSuchMethodException | SecurityException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IllegalAccessException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IllegalArgumentException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (InvocationTargetException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+						}
+						else
+						{
+							try {
+								callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(contentMethodName, String.class).invoke(callObject, content);
+							} catch (NoSuchMethodException | SecurityException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IllegalAccessException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IllegalArgumentException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (InvocationTargetException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 				}
+				
 				
 			}
 			
 			public void callParameterMethod(String key, String value)
 			{
+				
 				if(parameterMethodName!=null)
 				{
-					try {
-						callObject.getClass().getMethod(parameterMethodName, String.class, String.class).invoke(callObject, key,value);
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (NoSuchMethodException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(!objectGetterMode)
+					{
+						try {
+							callObject.getClass().getMethod(parameterMethodName, String.class, String.class).invoke(callObject, key,value);
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					else
+					{
+						try {
+							callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(parameterMethodName, String.class, String.class).invoke(callObject, key,value);
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}
 			
 			public void callEndTagMethod()
 			{
+				
 				if(endTagMethod!=null)
 				{
-					try {
-						callObject.getClass().getMethod(endTagMethod, null).invoke(callObject, null);
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (NoSuchMethodException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(!objectGetterMode)
+					{
+						try {
+							callObject.getClass().getMethod(endTagMethod, null).invoke(callObject, null);
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					else
+					{
+						try {
+							callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(endTagMethod, null).invoke(callObject, null);
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -204,24 +292,49 @@ public class BakeParser {
 			{
 				if(startTagMethod!=null)
 				{
-					try {
-						callObject.getClass().getMethod(startTagMethod, null).invoke(callObject, null);
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (NoSuchMethodException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(!objectGetterMode)
+					{
+						try {
+							callObject.getClass().getMethod(startTagMethod, null).invoke(callObject, null);
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
+					else
+					{
+						try {
+							callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(startTagMethod, null).invoke(callObject, null);
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
 				}
 				
 			}
