@@ -169,7 +169,15 @@ public class BakeParser {
 						else
 						{
 							try {
-								callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(contentMethodName, String.class).invoke(callObject, content);
+								
+								
+								String methods[] = objectGetter.split(">");
+								Object call = callObject.getClass().getMethod(methods[0],null).invoke(callObject, null);
+								for(String s : methods)
+								{
+									call = call.getClass().getMethod(s, null).invoke(call, null);
+								}
+								call.getClass().getMethod(contentMethodName, String.class).invoke(callObject, content);
 							} catch (NoSuchMethodException | SecurityException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -218,7 +226,13 @@ public class BakeParser {
 					else
 					{
 						try {
-							callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(parameterMethodName, String.class, String.class).invoke(callObject, key,value);
+							String methods[] = objectGetter.split(">");
+							Object call = callObject.getClass().getMethod(methods[0],null).invoke(callObject, null);
+							for(String s : methods)
+							{
+								call = call.getClass().getMethod(s, null).invoke(call, null);
+							}
+							call.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(parameterMethodName, String.class, String.class).invoke(callObject, key,value);
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -268,7 +282,13 @@ public class BakeParser {
 					else
 					{
 						try {
-							callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(endTagMethod, null).invoke(callObject, null);
+							String methods[] = objectGetter.split(">");
+							Object call = callObject.getClass().getMethod(methods[0],null).invoke(callObject, null);
+							for(String s : methods)
+							{
+								call = call.getClass().getMethod(s, null).invoke(call, null);
+							}
+							call.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(endTagMethod, null).invoke(callObject, null);
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -316,7 +336,13 @@ public class BakeParser {
 					else
 					{
 						try {
-							callObject.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(startTagMethod, null).invoke(callObject, null);
+							String methods[] = objectGetter.split(">");
+							Object call = callObject.getClass().getMethod(methods[0],null).invoke(callObject, null);
+							for(String s : methods)
+							{
+								call = call.getClass().getMethod(s, null).invoke(call, null);
+							}
+							call.getClass().getMethod(objectGetter, null).invoke(callObject, null).getClass().getMethod(startTagMethod, null).invoke(callObject, null);
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -358,7 +384,7 @@ public class BakeParser {
 		{
 
 			private Hashtable<String,BakeParserRequest> requests;
-			private String currentTag="",startTag="",tag="";
+			private String currentTag="",startTag="";
 			private BakeParserRequest currentRequest;
 			private BakeParserListener listener;
 			
@@ -412,9 +438,6 @@ public class BakeParser {
 					
 				}
 				
-				tag = qName;
-				
-				
 			}
 			@Override
 			public void characters(char[] arg0, int arg1, int arg2)
@@ -456,11 +479,6 @@ public class BakeParser {
 								
 							}
 						}
-						
-						
-				
-					
-				
 				
 			}
 			
@@ -469,11 +487,7 @@ public class BakeParser {
 				
 				listener.onBakingCompleted();
 				
-			}
-
-			
-
-			
+			}	
 			
 		}
 		
