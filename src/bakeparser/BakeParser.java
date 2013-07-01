@@ -3,6 +3,7 @@ package bakeparser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -95,17 +96,20 @@ public class BakeParser {
 		
 		public static class BakeParserRequest
 		{
-			private String tagName,contentMethodName,parameterMethodName,endTagMethod,startTagMethod,objectGetter;
+			private String myTag,tagName,contentMethodName,parameterMethodName,endTagMethodName,startTagMethodName,objectGetter;
 			private Object callObject;
 			private boolean objectGetterMode = false;
+			
 			public BakeParserRequest(String tagName, Object callObject,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
 			{
 				this.tagName = tagName;
 				this.callObject = callObject;
 				this.contentMethodName = contentMethodName;
 				this.parameterMethodName = parameterMethodName;
-				this.endTagMethod = endTagMethod;
-				this.startTagMethod = startTagMethod;
+				this.endTagMethodName = endTagMethod;
+				this.startTagMethodName = startTagMethod;
+				String s[] = tagName.split(">");
+				myTag = s[s.length-1];
 			}
 			public BakeParserRequest(String tagName,Object callObject,String objectGetter,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
 			{
@@ -115,8 +119,10 @@ public class BakeParser {
 				objectGetterMode = true;
 				this.contentMethodName = contentMethodName;
 				this.parameterMethodName = parameterMethodName;
-				this.endTagMethod = endTagMethod;
-				this.startTagMethod = startTagMethod;
+				this.endTagMethodName = endTagMethod;
+				this.startTagMethodName = startTagMethod;
+				String s[] = tagName.split(">");
+				myTag = s[s.length-1];
 			}
 			
 			/*
@@ -235,11 +241,11 @@ public class BakeParser {
 			
 			public void callEndTagMethod()
 			{
-				call(endTagMethod);
+				call(endTagMethodName);
 			}
 			public void callStartTagMethod()
 			{
-				call(startTagMethod);
+				call(startTagMethodName);
 			}
 		}
 		
