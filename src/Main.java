@@ -34,7 +34,7 @@ public class Main {
 					builder.addRequest("channel>description", podcast, null, "setDescription", null, null);
 					
 					builder.addRequest("channel>item", podcast, "newItem", null, null,"addItem");
-					builder.addRequest("channel>item>title", podcast, null,"setItemTitle", null,null);
+					/* Wildcard, will cause exceptions for unhandled tags */builder.addRequest("channel>item>*", podcast, null,"set*", null,null);
 					builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
 					builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
 					builder.addRequest("channel>item>description", podcast, null,"setItemDescription", null,null);
@@ -82,6 +82,10 @@ public class Main {
 		public OO getOO()
 		{
 			return new OO();
+		}
+		public void settitle(String str)
+		{
+			p("Wildcard -> "+str);
 		}
 		public static class OO
 		{

@@ -3,7 +3,6 @@ package bakeparser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -247,6 +246,29 @@ public class BakeParser {
 			{
 				call(startTagMethodName);
 			}
+			/*
+			 * Methods for wildcards
+			 */
+			public void callContentMethod(String content, String tagName)
+			{
+				if(contentMethodName!=null)
+				call(contentMethodName.replace("*", tagName),content);
+			}
+			public void callParameterMethod(String key,String value, String tagName)
+			{
+				if(contentMethodName!=null)
+				call(contentMethodName.replace("*", tagName),key,value);
+			}
+			public void callEndTagMethod(String tagName)
+			{
+				if(endTagMethodName!=null)
+				call(endTagMethodName.replace("*", tagName));
+			}
+			public void callStartTagMethod(String tagName)
+			{
+				if(startTagMethodName!=null)
+				call(startTagMethodName.replace("*", tagName));
+			}
 		}
 		
 	}
@@ -265,7 +287,7 @@ public class BakeParser {
 		{
 
 			private Hashtable<String,BakeParserRequest> requests;
-			private String currentTag="",startTag="";
+			private String currentTag="",startTag="",tempTag="";
 			private BakeParserRequest currentRequest;
 			private BakeParserListener listener;
 			
@@ -286,6 +308,7 @@ public class BakeParser {
 			@Override
 			public void startElement(String arg0, String localName, String qName,
 					Attributes attrs) throws SAXException {
+				tempTag = currentTag;
 				if(qName.equals(startTag))
 				{
 					if(currentTag.equals(""))
@@ -314,9 +337,22 @@ public class BakeParser {
 						currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
 						
 						
+					}	
+				}
+				else
+				{
+					currentRequest = requests.get(tempTag+">*");
+					if(currentRequest!=null)
+					{
+						currentRequest.callStartTagMethod(qName);
+						for(int i=0; i<attrs.getLength(); i++)
+						{
+							
+							currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
+							
+							
+						}
 					}
-					
-					
 				}
 				
 			}
@@ -344,6 +380,15 @@ public class BakeParser {
 						if(currentRequest!=null)
 						{currentRequest.callContentMethod(currentContent.trim());
 						currentRequest.callEndTagMethod();}
+						else
+						{
+							currentRequest = requests.get(tempTag+">*");
+							if(currentRequest!=null)
+							{
+								currentRequest.callContentMethod(currentContent.trim(),qName);
+								currentRequest.callEndTagMethod(qName);
+							}
+						}
 						currentContent="";
 						currentRequest = null;
 						
