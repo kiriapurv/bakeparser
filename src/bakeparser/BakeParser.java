@@ -142,236 +142,105 @@ public class BakeParser {
 			/*
 			 * Useful methods
 			 */
-			public void callContentMethod(String content)
+			private void call(String methodName,Object... content)
 			{
-				
-					if(contentMethodName!=null)
+				if(methodName!=null)
+				{
+					if(!objectGetterMode)
 					{
-						if(!objectGetterMode)
-						{
-							try {
-								callObject.getClass().getMethod(contentMethodName, String.class).invoke(callObject, content);
-							} catch (SecurityException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IllegalAccessException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IllegalArgumentException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (InvocationTargetException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (NoSuchMethodException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+						try {
+							switch(content.length)
+							{
+								case 0 :
+									callObject.getClass().getMethod(methodName).invoke(callObject);
+									break;
+								case 1:
+									callObject.getClass().getMethod(methodName,String.class).invoke(callObject,content);
+									break;
+								case 2:
+									callObject.getClass().getMethod(methodName,String.class,String.class).invoke(callObject,content);
+									break;
 							}
 							
+							
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-						else
-						{
-							try {
+					}
+					else
+					{
+						String methods[] = objectGetter.split(">");
+						Object call = callObject;
+						try {
+							for(String s : methods)
+							{
 								
+									call = call.getClass().getMethod(s).invoke(call);
 								
-								String methods[] = objectGetter.split(">");
-								Object call = callObject;
-								for(String s : methods)
-								{
-									call = call.getClass().getMethod(s, null).invoke(call, null);
-								}
-								call.getClass().getMethod(contentMethodName, String.class).invoke(call, content);
-							} catch (SecurityException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IllegalAccessException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IllegalArgumentException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (InvocationTargetException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (NoSuchMethodException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
 							}
+							
+							switch(content.length)
+							{
+								case 0 :
+									call.getClass().getMethod(methodName).invoke(call);
+									break;
+								case 1:
+									call.getClass().getMethod(methodName,String.class).invoke(call,content);
+									break;
+								case 2:
+									call.getClass().getMethod(methodName,String.class,String.class).invoke(call,content);
+									break;
+							}
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
+					}
 				}
-				
-				
+			}
+			public void callContentMethod(String content)
+			{
+				call(contentMethodName,content);
 			}
 			
 			public void callParameterMethod(String key, String value)
 			{
-				
-				if(parameterMethodName!=null)
-				{
-					if(!objectGetterMode)
-					{
-						try {
-							callObject.getClass().getMethod(parameterMethodName, String.class, String.class).invoke(callObject, key,value);
-						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					else
-					{
-						try {
-							String methods[] = objectGetter.split(">");
-							Object call = callObject;
-							for(String s : methods)
-							{
-								call = call.getClass().getMethod(s, null).invoke(call, null);
-							}
-							call.getClass().getMethod(parameterMethodName, String.class, String.class).invoke(call, key,value);
-						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
+				call(contentMethodName,key,value);
 			}
 			
 			public void callEndTagMethod()
 			{
-				
-				if(endTagMethod!=null)
-				{
-					if(!objectGetterMode)
-					{
-						try {
-							callObject.getClass().getMethod(endTagMethod, null).invoke(callObject, null);
-						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					else
-					{
-						try {
-							String methods[] = objectGetter.split(">");
-							Object call = callObject.getClass();
-							for(String s : methods)
-							{
-								call = call.getClass().getMethod(s, null).invoke(call, null);
-							}
-							call.getClass().getMethod(endTagMethod, null).invoke(call, null);
-						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
+				call(endTagMethod);
 			}
 			public void callStartTagMethod()
 			{
-				if(startTagMethod!=null)
-				{
-					if(!objectGetterMode)
-					{
-						try {
-							callObject.getClass().getMethod(startTagMethod, null).invoke(callObject, null);
-						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					else
-					{
-						try {
-							String methods[] = objectGetter.split(">");
-							Object call = callObject;
-							for(String s : methods)
-							{
-								call = call.getClass().getMethod(s, null).invoke(call, null);
-							}
-							call.getClass().getMethod(startTagMethod, null).invoke(call, null);
-						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					
-				}
-				
+				call(startTagMethod);
 			}
-			
-			
 		}
 		
 	}
