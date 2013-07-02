@@ -222,38 +222,41 @@ public class BakeParser {
 						
 						Object call = callObject;
 						try {
-							int n=0;
-							if(methodName.contains("<"))
-							{
-								char ch[] = methodName.toCharArray();
-								for(char c : ch)
-								{
-									if(c=='<')
-										n++;
-									else
-										break;
-								}
-								methodName = methodName.replace("<", "");
-							}
-							for(int i=0; i<methods.length-n;i++)
+							for(String methodN : methodName.split(","))
 							{
 								
-									call = call.getClass().getMethod(methods[i]).invoke(call);
+									int n=0;
+									if(methodN.contains("<"))
+									{
+										char ch[] = methodN.toCharArray();
+										for(char c : ch)
+										{
+											if(c=='<')
+												n++;
+											else
+												break;
+										}
+										methodN = methodN.replace("<", "");
+									}
+									for(int i=0; i<methods.length-n;i++)
+									{
+											call = call.getClass().getMethod(methods[i].split(",")[0]).invoke(call);
+									}
+									
+									switch(content.length)
+									{
+										case 0 :
+											call.getClass().getMethod(methodN).invoke(call);
+											break;
+										case 1:
+											call.getClass().getMethod(methodN,String.class).invoke(call,content);
+											break;
+										case 2:
+											call.getClass().getMethod(methodN,String.class,String.class).invoke(call,content);
+											break;
+									}
+							}
 								
-							}
-							for(String mName : methodName.split(","))
-							switch(content.length)
-							{
-								case 0 :
-									call.getClass().getMethod(mName).invoke(call);
-									break;
-								case 1:
-									call.getClass().getMethod(mName,String.class).invoke(call,content);
-									break;
-								case 2:
-									call.getClass().getMethod(mName,String.class,String.class).invoke(call,content);
-									break;
-							}
 						} catch (IllegalArgumentException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
