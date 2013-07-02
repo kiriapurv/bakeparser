@@ -235,7 +235,7 @@ public class BakeParser {
 			
 			public void callParameterMethod(String key, String value)
 			{
-				call(contentMethodName,key,value);
+				call(parameterMethodName,key,value);
 			}
 			
 			public void callEndTagMethod()
@@ -329,14 +329,11 @@ public class BakeParser {
 				
 				if(currentRequest!=null)
 				{
-					
 					currentRequest.callStartTagMethod();
 					for(int i=0; i<attrs.getLength(); i++)
 					{
 						
 						currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
-						
-						
 					}	
 				}
 				else
