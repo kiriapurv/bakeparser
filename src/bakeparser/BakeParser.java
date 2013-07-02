@@ -11,6 +11,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -40,7 +41,7 @@ public class BakeParser {
 		public BakeParserRequestBuilder buildRequests();
 		public InputStream bakeParserStream();
 		public void onBakingCompleted();
-		
+		public InputSource bakeParserSource();
 	}
 	
 	public BakeParserRequestBuilder newRequestBuilder(String startTag)
@@ -101,22 +102,14 @@ public class BakeParser {
 			private Hashtable<String,String> parameterMethods;
 			public BakeParserRequest(String tagName, Object callObject,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
 			{
-				this.tagName = tagName;
-				this.callObject = callObject;
-				this.contentMethodName = contentMethodName;
-				this.parameterMethodName = parameterMethodName;
-				this.endTagMethodName = endTagMethod;
-				this.startTagMethodName = startTagMethod;
-				String s[] = tagName.split(">");
-				myTag = s[s.length-1];
-				setUpMethods();
-				setUpParameters();
+				this(tagName,callObject,null,startTagMethod,contentMethodName,parameterMethodName,endTagMethod);
 			}
 			public BakeParserRequest(String tagName,Object callObject,String objectGetter,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
 			{
 				this.tagName = tagName;
 				this.callObject = callObject;
 				this.objectGetter = objectGetter;
+				if(objectGetter!=null)
 				objectGetterMode = true;
 				this.contentMethodName = contentMethodName;
 				this.parameterMethodName = parameterMethodName;
@@ -148,6 +141,7 @@ public class BakeParser {
 						parameterMethods = new Hashtable<String,String>();
 						parameterSplitMode = true;
 						String deps[] = parameterMethodName.split("\\|");
+						
 						for(String dep : deps)
 						{
 							String spl[] = dep.split(">");
@@ -224,12 +218,26 @@ public class BakeParser {
 					else
 					{
 						String methods[] = objectGetter.split(">");
+						
 						Object call = callObject;
 						try {
-							for(String s : methods)
+							int n=0;
+							if(methodName.contains("<"))
+							{
+								char ch[] = methodName.toCharArray();
+								for(char c : ch)
+								{
+									if(c=='<')
+										n++;
+									else
+										break;
+								}
+								methodName = methodName.replace("<", "");
+							}
+							for(int i=0; i<methods.length-n;i++)
 							{
 								
-									call = call.getClass().getMethod(s).invoke(call);
+									call = call.getClass().getMethod(methods[i]).invoke(call);
 								
 							}
 							
@@ -340,8 +348,11 @@ public class BakeParser {
 		
 		SAXParserFactory fact = SAXParserFactory.newInstance();
 		SAXParser parser = fact.newSAXParser();
+		InputStream is = listener.bakeParserStream();
+		if(is!=null)
 		parser.parse(listener.bakeParserStream(), baker);
-		
+		else
+		parser.parse(listener.bakeParserSource(), baker);
 	}
 	
 		

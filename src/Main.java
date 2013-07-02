@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import bakeparser.BakeParser;
@@ -65,6 +66,12 @@ public class Main {
 				public void onBakingCompleted() {
 					
 					podcast.complete();
+				}
+
+				@Override
+				public InputSource bakeParserSource() {
+					// TODO Auto-generated method stub
+					return null;
 				}
 				
 			});
