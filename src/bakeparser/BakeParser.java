@@ -97,8 +97,8 @@ public class BakeParser {
 		{
 			private String myTag,tagName,contentMethodName,parameterMethodName,endTagMethodName,startTagMethodName,objectGetter;
 			private Object callObject;
-			private boolean objectGetterMode = false;
-			
+			private boolean objectGetterMode = false, parameterSplitMode=false;
+			private Hashtable<String,String> parameterMethods;
 			public BakeParserRequest(String tagName, Object callObject,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
 			{
 				this.tagName = tagName;
@@ -109,6 +109,7 @@ public class BakeParser {
 				this.startTagMethodName = startTagMethod;
 				String s[] = tagName.split(">");
 				myTag = s[s.length-1];
+				setUpParameters();
 			}
 			public BakeParserRequest(String tagName,Object callObject,String objectGetter,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
 			{
@@ -122,8 +123,30 @@ public class BakeParser {
 				this.startTagMethodName = startTagMethod;
 				String s[] = tagName.split(">");
 				myTag = s[s.length-1];
+				setUpParameters();
 			}
 			
+			private void setUpParameters()
+			{
+				if(parameterMethodName!=null)
+				{
+					if(parameterMethodName.contains(">"))
+					{
+						parameterMethods = new Hashtable<String,String>();
+						parameterSplitMode = true;
+						String deps[] = parameterMethodName.split("|");
+						for(String dep : deps)
+						{
+							String spl[] = dep.split(">");
+							parameterMethods.put(spl[0],spl[1]);
+						}
+					}
+					else
+					{
+						parameterSplitMode = false;
+					}
+				}
+			}
 			/*
 			 * Useful getter setters
 			 */
@@ -235,7 +258,27 @@ public class BakeParser {
 			
 			public void callParameterMethod(String key, String value)
 			{
-				call(parameterMethodName,key,value);
+				if(!parameterSplitMode)
+				{
+					call(parameterMethodName,key,value);
+				}
+				else
+				{
+					String m = parameterMethods.get(key);
+					if(m!=null)
+					{
+						call(m,value);
+					}
+					else
+					{
+						m = parameterMethods.get("*");
+						if(m!=null)
+						{
+							call(m,key,value);
+						}
+					}
+				}
+				
 			}
 			
 			public void callEndTagMethod()
