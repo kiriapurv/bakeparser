@@ -131,8 +131,11 @@ public class BakeParser {
 			{
 				if(!myTag.contains("*"))
 				{
+					if(contentMethodName!=null)
 					contentMethodName = contentMethodName.replace("*",myTag);
+					if(endTagMethodName!=null)
 					endTagMethodName = endTagMethodName.replace("*", myTag);
+					if(startTagMethodName!=null)
 					startTagMethodName = startTagMethodName.replace("*",myTag);
 				}
 			}
