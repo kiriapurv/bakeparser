@@ -6,4 +6,4 @@ About
 - It uses SAX Parser
 
 
-Refer wiki for workign and usage
+Refer wiki for working and usage
