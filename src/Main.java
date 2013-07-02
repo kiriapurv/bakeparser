@@ -41,7 +41,7 @@ public class Main {
 					builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
 					builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
 					builder.addRequest("channel>item>description", podcast, null,"setItemDescription", null,null);
-					builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "setItemEnclosure","closeItemEnclosure");
+					builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "url>parameterTest|*>setItemEnclosure","closeItemEnclosure");
 					return builder;
 				}
 
@@ -175,6 +175,10 @@ public class Main {
 		public void startItemEnclosure()
 		{
 			p("Item Enclosure : --------------->");
+		}
+		public void parameterTest(String str)
+		{
+			p(":::>>>>>>>> Parameter Passed  : "+str);
 		}
 		public void setItemEnclosure(String key, String value)
 		{

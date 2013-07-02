@@ -134,7 +134,7 @@ public class BakeParser {
 					{
 						parameterMethods = new Hashtable<String,String>();
 						parameterSplitMode = true;
-						String deps[] = parameterMethodName.split("|");
+						String deps[] = parameterMethodName.split("\\|");
 						for(String dep : deps)
 						{
 							String spl[] = dep.split(">");
