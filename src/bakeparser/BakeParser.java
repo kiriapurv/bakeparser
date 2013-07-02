@@ -109,6 +109,7 @@ public class BakeParser {
 				this.startTagMethodName = startTagMethod;
 				String s[] = tagName.split(">");
 				myTag = s[s.length-1];
+				setUpMethods();
 				setUpParameters();
 			}
 			public BakeParserRequest(String tagName,Object callObject,String objectGetter,String startTagMethod,String contentMethodName,String parameterMethodName,String endTagMethod)
@@ -123,9 +124,19 @@ public class BakeParser {
 				this.startTagMethodName = startTagMethod;
 				String s[] = tagName.split(">");
 				myTag = s[s.length-1];
+				setUpMethods();
 				setUpParameters();
 			}
-			
+			private void setUpMethods()
+			{
+				if(!myTag.contains("*"))
+				{
+					contentMethodName = contentMethodName.replace("*",myTag);
+					parameterMethodName = parameterMethodName.replace("*",myTag);
+					endTagMethodName = endTagMethodName.replace("*", myTag);
+					startTagMethodName = startTagMethodName.replace("*",myTag);
+				}
+			}
 			private void setUpParameters()
 			{
 				if(parameterMethodName!=null)
