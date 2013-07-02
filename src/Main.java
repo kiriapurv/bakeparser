@@ -36,8 +36,8 @@ public class Main {
 					
 					builder.addRequest("channel>item", podcast, "newItem", null, null,"addItem");
 					/* Wildcard, will cause exceptions for unhandled tags */
-					builder.addRequest("channel>item>*", podcast, null,"set*", null,null);
-					
+					//builder.addRequest("channel>item>*", podcast, null,"set*", null,null);
+					builder.addRequest("channel>item>title", podcast, "methodOne,methodTwo", "methodOne,methodTwo", null, null);
 					
 					builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
 					builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
@@ -89,6 +89,22 @@ public class Main {
 
 	public static class NasaPodcasts
 	{
+		public void methodOne()
+		{
+			p("Method 1");
+		}
+		public void methodTwo()
+		{
+			p("Method 2");
+		}
+		public void methodOne(String s)
+		{
+			p("Method 1 : "+s);
+		}
+		public void methodTwo(String s)
+		{
+			p("Method 2 : "+s);
+		}
 		public OO getOO()
 		{
 			return new OO();

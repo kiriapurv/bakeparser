@@ -184,16 +184,17 @@ public class BakeParser {
 					if(!objectGetterMode)
 					{
 						try {
+							for(String mName : methodName.split(","))
 							switch(content.length)
 							{
 								case 0 :
-									callObject.getClass().getMethod(methodName).invoke(callObject);
+									callObject.getClass().getMethod(mName).invoke(callObject);
 									break;
 								case 1:
-									callObject.getClass().getMethod(methodName,String.class).invoke(callObject,content);
+									callObject.getClass().getMethod(mName,String.class).invoke(callObject,content);
 									break;
 								case 2:
-									callObject.getClass().getMethod(methodName,String.class,String.class).invoke(callObject,content);
+									callObject.getClass().getMethod(mName,String.class,String.class).invoke(callObject,content);
 									break;
 							}
 							
@@ -240,17 +241,17 @@ public class BakeParser {
 									call = call.getClass().getMethod(methods[i]).invoke(call);
 								
 							}
-							
+							for(String mName : methodName.split(","))
 							switch(content.length)
 							{
 								case 0 :
-									call.getClass().getMethod(methodName).invoke(call);
+									call.getClass().getMethod(mName).invoke(call);
 									break;
 								case 1:
-									call.getClass().getMethod(methodName,String.class).invoke(call,content);
+									call.getClass().getMethod(mName,String.class).invoke(call,content);
 									break;
 								case 2:
-									call.getClass().getMethod(methodName,String.class,String.class).invoke(call,content);
+									call.getClass().getMethod(mName,String.class,String.class).invoke(call,content);
 									break;
 							}
 						} catch (IllegalArgumentException e) {
