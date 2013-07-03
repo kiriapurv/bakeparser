@@ -459,6 +459,7 @@ public class BakeParser {
 							currentRequest = requests.get(tempTag+">*");
 							if(currentRequest!=null)
 							{
+								if(currentContent!=null)
 								currentRequest.callContentMethod(currentContent.trim(),qName);
 								currentRequest.callEndTagMethod(qName);
 							}
