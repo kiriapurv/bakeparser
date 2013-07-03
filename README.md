@@ -1,28 +1,28 @@
-Bake Parser
+##Bake Parser
 
-About 
+####About 
 
 - Bake Parser works as object's method caller for XML tags
 - It uses SAX Parser
 
-Working
+
+####Refer wiki for working and usage
 
 
-- Bakeparser supports as needed parsing
-- Provide tag to parse as "parent>child1>child2" provide object and object's method which must have string argument
-- Parser will bake object for you.
+###License
 
-Object's methods
-When <tag> is started, callObject's startMethodName is called, for content contentMethodName is called, for parameter's of the tag, parameterMethodName is called for end of tag, endTagMethod is called.
+```
+Copyright 2013 Apurv Kiri
 
-tagName has to be in format of parent>child1>child2>child3, skipping any of the hierarchy will not parse that tag. 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-startTag method has no parameters
-contentMethod has one String parameter
-parameter method has two string parameters as key,value
-endTag method has no parameters
+     http://www.apache.org/licenses/LICENSE-2.0
 
-TODO
-- Provide unique hierarchy identification, rather than using full hierarchy ( useful for too many parents and childs)
-- Performance Improvements
-- Unknown stuffs and bugs
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+```
