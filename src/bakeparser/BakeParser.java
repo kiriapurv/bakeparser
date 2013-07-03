@@ -325,7 +325,7 @@ public class BakeParser {
 			 */
 			public void callContentMethod(String content, String tagName)
 			{
-				if(contentMethodName!=null)
+				if(contentMethodName!=null && content!=null)
 				call(contentMethodName.replace("*", tagName),content);
 			}
 			public void callParameterMethod(String key,String value, String tagName)
@@ -447,19 +447,34 @@ public class BakeParser {
 				
 				
 					currentRequest = requests.get(currentTag);
+					/*
+					 * Remove tag
+					 */
+					exp = null;
+					exp = currentTag.split(">");
+					if(exp.length!=0)
+					{
+						currentTag=exp[0];
+						for(int i=1; i< exp.length-1; i++)
+						{
+							currentTag+=">"+exp[i];
+							
+						}
+					}
 					
 						/*
 						 * Calling for current tag
 						 */
 						if(currentRequest!=null)
-						{currentRequest.callContentMethod(currentContent.trim());
-						currentRequest.callEndTagMethod();}
+						{
+							currentRequest.callContentMethod(currentContent.trim());
+							currentRequest.callEndTagMethod();
+						}
 						else
 						{
-							currentRequest = requests.get(tempTag+">*");
+							currentRequest = requests.get(currentTag+">*");
 							if(currentRequest!=null)
 							{
-								if(currentContent!=null)
 								currentRequest.callContentMethod(currentContent.trim(),qName);
 								currentRequest.callEndTagMethod(qName);
 							}
@@ -467,20 +482,7 @@ public class BakeParser {
 						currentContent="";
 						currentRequest = null;
 						
-						/*
-						 * Remove tag
-						 */
-						exp = null;
-						exp = currentTag.split(">");
-						if(exp.length!=0)
-						{
-							currentTag=exp[0];
-							for(int i=1; i< exp.length-1; i++)
-							{
-								currentTag+=">"+exp[i];
-								
-							}
-						}
+						
 				
 			}
 			
