@@ -179,8 +179,10 @@ public class BakeParser {
 			/*
 			 * Useful methods
 			 */
+			private Object tempCall;
 			private void call(String methodName,Object... content)
 			{
+				
 				if(methodName!=null)
 				{
 					if(!objectGetterMode)
@@ -215,8 +217,11 @@ public class BakeParser {
 							e.printStackTrace();
 						} catch (NoSuchMethodException e) {
 							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Method Not Found : "+callObject.getClass().getName()+" > "+methodName);
+						} catch (NullPointerException e) {
+							System.out.println("BakeParser > Null Pointer : "+callObject.getClass().getName()+" > "+methodName);
 						}
+						
 					}
 					else
 					{
@@ -242,7 +247,11 @@ public class BakeParser {
 									}
 									for(int i=0; i<methods.length-n;i++)
 									{
-											call = call.getClass().getMethod(methods[i].split(",")[0]).invoke(call);
+											String s = methods[i].split(",")[0];
+											tempCall = call;
+											call = call.getClass().getMethod(s).invoke(call);
+											if(call==null)
+												System.out.println("BakeParser > Getter Returned Null Object : "+tempCall.getClass().getName()+" > "+methodN);
 									}
 									
 									switch(content.length)
@@ -273,6 +282,9 @@ public class BakeParser {
 							e.printStackTrace();
 						} catch (NoSuchMethodException e) {
 							// TODO Auto-generated catch block
+							System.out.println("BakeParser > Method Not Found : "+call.getClass().getName()+" > "+methodName);
+						} catch (NullPointerException e) {
+							//System.out.println("BakeParser > Null Pointer : "+call.getClass().getName()+" > "+methodName);
 							e.printStackTrace();
 						}
 					}
