@@ -481,6 +481,7 @@ public class BakeParser {
 						 */
 						if(currentRequest!=null)
 						{
+							if(!currentContent.trim().equals(""))
 							currentRequest.callContentMethod(currentContent.trim());
 							currentRequest.callEndTagMethod();
 						}
@@ -489,6 +490,7 @@ public class BakeParser {
 							currentRequest = requests.get(currentTag+">*");
 							if(currentRequest!=null)
 							{
+								if(!currentContent.trim().equals(""))
 								currentRequest.callContentMethod(currentContent.trim(),qName);
 								currentRequest.callEndTagMethod(qName);
 							}
