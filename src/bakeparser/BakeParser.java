@@ -182,7 +182,6 @@ public class BakeParser {
 			private Object tempCall;
 			private void call(String methodName,Object... content)
 			{
-				
 				if(methodName!=null)
 				{
 					if(!objectGetterMode)
@@ -344,8 +343,8 @@ public class BakeParser {
 			}
 			public void callParameterMethod(String key,String value, String tagName)
 			{
-				if(contentMethodName!=null)
-				call(contentMethodName.replace("*", tagName),key,value);
+				if(parameterMethodName!=null)
+				call(parameterMethodName.replace("*", tagName),key,value);
 			}
 			public void callEndTagMethod(String tagName)
 			{
@@ -400,6 +399,7 @@ public class BakeParser {
 			public void startElement(String arg0, String localName, String qName,
 					Attributes attrs) throws SAXException {
 				tempTag = currentTag;
+				
 				if(qName.equals(startTag))
 				{
 					if(currentTag.equals(""))
@@ -434,10 +434,7 @@ public class BakeParser {
 						currentRequest.callStartTagMethod(qName);
 						for(int i=0; i<attrs.getLength(); i++)
 						{
-							
 							currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
-							
-							
 						}
 					}
 				}
