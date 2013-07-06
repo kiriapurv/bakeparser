@@ -251,7 +251,7 @@ public class BakeParser {
 											tempCall = call;
 											call = call.getClass().getMethod(s).invoke(call);
 											if(call==null)
-												System.out.println("BakeParser > Getter Returned Null Object : "+tempCall.getClass().getName()+" > "+methodN);
+												System.out.println("BakeParser > Getter Returned Null Object : "+tempCall.getClass().getName()+" > "+methods[i]);
 									}
 									
 									switch(content.length)
@@ -417,7 +417,6 @@ public class BakeParser {
 				}
 				
 				currentRequest = requests.get(currentTag);
-				
 				if(currentRequest!=null)
 				{
 					currentRequest.callStartTagMethod();
