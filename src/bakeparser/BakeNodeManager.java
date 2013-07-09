@@ -63,6 +63,18 @@ public class BakeNodeManager {
 			{
 				String nm[] = path.split(">");
 				this.tagName = nm[nm.length-1];
+				
+				//Methods setup
+				if(!tagName.contains("*"))
+				{
+					if(contentMethod!=null)
+					contentMethod = contentMethod.replace("*",tagName);
+					if(endTagMethod!=null)
+					endTagMethod = endTagMethod.replace("*", tagName);
+					if(startTagMethod!=null)
+					startTagMethod = startTagMethod.replace("*",tagName);
+				}
+				
 				String pa = nm[0];
 				
 				for(int i=1;i<nm.length-1;i++)
@@ -129,6 +141,18 @@ public class BakeNodeManager {
 			if(path.contains(">"))
 			{
 				String nm[] = path.split(">");
+				
+				//Methods setup
+				if(!tagName.contains("*"))
+				{
+					if(contentMethod!=null)
+					contentMethod = contentMethod.replace("*",tagName);
+					if(endTagMethod!=null)
+					endTagMethod = endTagMethod.replace("*", tagName);
+					if(startTagMethod!=null)
+					startTagMethod = startTagMethod.replace("*",tagName);
+				}
+				
 				if(tagName.equals(nm[nm.length-1]))
 				{
 					String pa = nm[0];

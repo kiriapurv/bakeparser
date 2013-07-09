@@ -33,8 +33,8 @@ public class Main {
 					builder.addRequest("channel>title", podcast, null,null,"setTitle", null, null);
 					builder.addRequest("channel>link", podcast, null, "setLink", null, null);
 					builder.addRequest("item", podcast, "newItem", null, null, null);
-					builder.addRequest("item>title", podcast, "getCurrentItem", null, "setTitle", null, null);
-					builder.addRequest("item>link", podcast, "getCurrentItem", null, "setLink", null, null);
+					builder.addRequest("item>title", podcast, "getCurrentItem", null, "set*", null, null);
+					builder.addRequest("item>link", podcast, "getCurrentItem", null, "set*", null, null);
 					return builder;
 				}
 
@@ -106,11 +106,11 @@ public class Main {
 		{
 			private String title, link;
 			
-			public void setTitle(String s)
+			public void settitle(String s)
 			{
 				System.out.println("Title : "+s);
 			}
-			public void setLink(String s)
+			public void setlink(String s)
 			{
 				System.out.println("Link : "+s);
 			}
