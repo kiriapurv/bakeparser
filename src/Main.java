@@ -30,19 +30,11 @@ public class Main {
 				public BakeParserRequestBuilder buildRequests() {
 					BakeParserRequestBuilder builder = parser.newRequestBuilder();
 					
-					builder.addRequest("title", podcast, null, "setTitle", null, null);
-					builder.addRequest("link", podcast, null, "setLink", null, null);
-					builder.addRequest("image>description", podcast, null, "setDescription", null, null);
-					
-					builder.addRequest("channel>item", podcast, "newItem", null, null,"addItem");
-					/* Wildcard, will cause exceptions for unhandled tags */
-					//builder.addRequest("channel>item>*", podcast, null,"set*", null,null);
-					builder.addRequest("item>title", podcast, "methodOne,methodTwo", "methodOne,methodTwo", null, null);
-					
-					builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
-					builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
-					builder.addRequest("item>description", podcast, null,"setItemDescription", null,null);
-					builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "url>parameterTest|*>setItemEnclosure","closeItemEnclosure");
+					builder.addRequest("channel>title", podcast, null,null,"setTitle", null, null);
+					builder.addRequest("channel>link", podcast, null, "setLink", null, null);
+					builder.addRequest("item", podcast, "newItem", null, null, null);
+					builder.addRequest("item>title", podcast, "getCurrentItem", null, "setTitle", null, null);
+					builder.addRequest("item>link", podcast, "getCurrentItem", null, "setLink", null, null);
 					return builder;
 				}
 
@@ -65,7 +57,7 @@ public class Main {
 				@Override
 				public void onBakingCompleted() {
 					
-					podcast.complete();
+					
 				}
 
 				@Override
@@ -89,151 +81,40 @@ public class Main {
 
 	public static class NasaPodcasts
 	{
-		public void methodOne()
+		private String title,link;
+		
+		public void setTitle(String s)
 		{
-			p("Method 1");
+			System.out.println("Title : "+s);
 		}
-		public void methodTwo()
+		public void setLink(String s)
 		{
-			p("Method 2");
-		}
-		public void methodOne(String s)
-		{
-			p("Method 1 : "+s);
-		}
-		public void methodTwo(String s)
-		{
-			p("Method 2 : "+s);
-		}
-		public OO getOO()
-		{
-			return new OO();
-		}
-		public void settitle(String str)
-		{
-			p("Wildcard -> "+str);
-		}
-		public static class OO
-		{
-			public void setText(String text)
-			{
-				p("OO --- > "+text);
-			}
-			
-			public BB getBB()
-			{
-				return new BB();
-			}
-			public static class BB
-			{
-				public void setText(String text)
-				{
-					p("BB --- > "+text);
-				}
-			}
-		}
-		private String title,link,description;
-		private Item currentItem;
-		private LinkedList<Item> items;
-		public NasaPodcasts()
-		{
-			items = new LinkedList<Item>();
-		}
-		public void complete()
-		{
-			p("----- Completed --- : Added "+items.size()+" Items");
-		}
-		public void setTitle(String title) {
-			p("Title : "+title);
-			this.title = title;
-		}
-
-		public void setLink(String link) {
-			p("Link : "+link);
-			this.link = link;
-		}
-
-		public void setDescription(String description) {
-			p("Description : "+description);
-			this.description = description;
-		}
-
-		public static class Item
-		{
-			public String title,link,pubDate,description,enclosureUrl,enclosureLength,enclosureType;		
+			System.out.println("Link : "+s);
 		}
 		
+		private Item currentItem;
+		public Item getCurrentItem()
+		{
+			return currentItem;
+		}
 		public void newItem()
 		{
-			p("--------- ITEM");
-			currentItem =null;
+			System.out.println("-- Item");
 			currentItem = new Item();
 		}
-		public void addItem()
+		public static class Item
 		{
-			p("///-------- ITEM");
-			items.add(currentItem);
-		}
-		
-		public void setItemTitle(String title) {
-			p("Item Title : "+title);
-			currentItem.title = title;
-		}
-
-		public void setItemLink(String link) {
-			p("Item Link : "+link);
-			currentItem.link = link;
-		}
-
-		public void setItemPubDate(String pubDate) {
-			p("Item Pub Date : "+pubDate);
-			currentItem.pubDate = pubDate;
-		}
-
-		public void setItemDescription(String description) {
-			p("Item Description : "+description);
-			currentItem.description = description;
-		}
-
-		public void startItemEnclosure()
-		{
-			p("Item Enclosure : --------------->");
-		}
-		public void parameterTest(String str)
-		{
-			p(":::>>>>>>>> Parameter Passed  : "+str);
-		}
-		public void setItemEnclosure(String key, String value)
-		{
+			private String title, link;
 			
+			public void setTitle(String s)
+			{
+				System.out.println("Title : "+s);
+			}
+			public void setLink(String s)
+			{
+				System.out.println("Link : "+s);
+			}
 			
-			p(">"+key+": "+value);
-			if(key.equals("url"))
-			{
-				currentItem.enclosureUrl = value;
-			}
-			else if(key.equals("length"))
-			{
-				currentItem.enclosureLength  = value;
-			}
-			else if(key.equals("type"))
-			{
-				currentItem.enclosureType=value;
-			}
 		}
-		
-		public void closeItemEnclosure()
-		{
-			p("//--------- Item Enclosure");
-		}
-		
-		
-		
-		
-	}
-	
-	private static void p(String s)
-	{
-		System.out.println(""+s);
 	}
 }

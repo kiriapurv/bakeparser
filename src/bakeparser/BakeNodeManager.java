@@ -16,7 +16,7 @@ public class BakeNodeManager {
 	public void addNode(String path,Object callObject,String objectGetterMethod, String startTagMethod, String contentMethod, String parameterMethod, String endTagMethod)
 	{
 		String s[] = path.split(">");
-		if(directory.contains(s[s.length-1]))
+		if(directory.containsKey(s[s.length-1]))
 			directory.get(s[s.length-1]).addNode(path, callObject,objectGetterMethod, startTagMethod, contentMethod, parameterMethod, endTagMethod);
 		else
 			directory.put(s[s.length-1],new BakeNode(path,callObject,objectGetterMethod,startTagMethod,contentMethod,parameterMethod,endTagMethod));
@@ -30,7 +30,6 @@ public class BakeNodeManager {
 		
 			if(directory.containsKey(s[s.length-1]))
 			{
-				
 				return directory.get(s[s.length-1]).findNode(path);
 			}
 			else if(directory.containsKey("*"))
@@ -140,6 +139,7 @@ public class BakeNodeManager {
 					}
 					childs.put(nm[nm.length-2],new BakeNode(pa,callObject,objectGetterMethod,startTagMethod,contentMethod,parameterMethod,endTagMethod));
 				}
+				
 			}
 			
 		}
@@ -169,14 +169,9 @@ public class BakeNodeManager {
 						return this;
 				}
 			}
-			else
+			else if(path.equals(tagName))
 			{
-				
-				if(path.equals(tagName))
-				{
-					return this;
-				}
-				
+				return this;
 			}
 			return null;
 		}
@@ -337,8 +332,8 @@ public class BakeNodeManager {
 		}
 		public void callParameterMethod(String key,String value, String tagName)
 		{
-			if(contentMethod!=null)
-			call(contentMethod.replace("*", tagName),key,value);
+			if(parameterMethod!=null)
+			call(parameterMethod.replace("*", tagName),key,value);
 		}
 		public void callEndTagMethod(String tagName)
 		{
