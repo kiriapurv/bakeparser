@@ -12,7 +12,7 @@ import org.xml.sax.SAXException;
 
 import bakeparser.BakeParser;
 import bakeparser.BakeParser.BakeParserListener;
-import bakeparser.BakeParser.BakeParserRequestBuilder;
+import bakeparser.BakeParserRequestBuilder;
 
 
 public class Main {
@@ -28,20 +28,20 @@ public class Main {
 
 				@Override
 				public BakeParserRequestBuilder buildRequests() {
-					BakeParserRequestBuilder builder = parser.newRequestBuilder("channel");
+					BakeParserRequestBuilder builder = parser.newRequestBuilder();
 					
-					builder.addRequest("channel>title", podcast, null, "setTitle", null, null);
-					builder.addRequest("channel>link", podcast, null, "setLink", null, null);
-					builder.addRequest("channel>description", podcast, null, "setDescription", null, null);
+					builder.addRequest("title", podcast, null, "setTitle", null, null);
+					builder.addRequest("link", podcast, null, "setLink", null, null);
+					builder.addRequest("image>description", podcast, null, "setDescription", null, null);
 					
 					builder.addRequest("channel>item", podcast, "newItem", null, null,"addItem");
 					/* Wildcard, will cause exceptions for unhandled tags */
 					//builder.addRequest("channel>item>*", podcast, null,"set*", null,null);
-					builder.addRequest("channel>item>title", podcast, "methodOne,methodTwo", "methodOne,methodTwo", null, null);
+					builder.addRequest("item>title", podcast, "methodOne,methodTwo", "methodOne,methodTwo", null, null);
 					
 					builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
 					builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
-					builder.addRequest("channel>item>description", podcast, null,"setItemDescription", null,null);
+					builder.addRequest("item>description", podcast, null,"setItemDescription", null,null);
 					builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "url>parameterTest|*>setItemEnclosure","closeItemEnclosure");
 					return builder;
 				}

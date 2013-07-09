@@ -9,12 +9,11 @@ public class BakeParserRequestBuilder
 	/*
 	 * Parent tag has to be mentioned.
 	 */
-	private String startTag;
-	private LinkedList<BakeParserRequest> requests;
-	public BakeParserRequestBuilder(String startTag)
+	
+	private BakeNodeManager manager;
+	public BakeParserRequestBuilder()
 	{
-		this.startTag = startTag;
-		requests = new LinkedList<BakeParserRequest>();
+		manager = new BakeNodeManager();
 	}
 	/*
 	 * When <tag> is started, callObject's startMethodName is called, for content contentMethodName is called, for parameter's of the tag, parameterMethodName is called
@@ -30,26 +29,18 @@ public class BakeParserRequestBuilder
 	 */
 	public BakeParserRequestBuilder addRequest(String tagName, Object callObject,String startMethodName, String contentMethodName,String parameterMethodName,String endTagMethod)
 	{
-		requests.add(new BakeParserRequest(tagName, callObject,startMethodName ,contentMethodName, parameterMethodName,endTagMethod));
+		manager.addNode(tagName, callObject,null,startMethodName ,contentMethodName, parameterMethodName,endTagMethod);
 		return this;
 	}
 	public BakeParserRequestBuilder addRequest(String tagName, Object callObject, String callObjectGetter,String startMethodName, String contentMethodName,String parameterMethodName,String endTagMethod)
 	{
-		requests.add(new BakeParserRequest(tagName, callObject, callObjectGetter ,startMethodName ,contentMethodName, parameterMethodName,endTagMethod));
+		manager.addNode(tagName, callObject, callObjectGetter ,startMethodName ,contentMethodName, parameterMethodName,endTagMethod);
 		return this;
 	}
-	public void setStartTag(String startTag)
-	{
-		this.startTag = startTag;
-	}
 	
-	public String getStartTag()
+	public BakeNodeManager getRequests()
 	{
-		return startTag;
-	}
-	public LinkedList<BakeParserRequest> getRequests()
-	{
-		return requests;
+		return manager;
 	}
 	
 	

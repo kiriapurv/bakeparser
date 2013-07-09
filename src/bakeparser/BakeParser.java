@@ -15,6 +15,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import bakeparser.BakeNodeManager.BakeNode;
+
 
 public class BakeParser {
 	
@@ -43,9 +45,9 @@ public class BakeParser {
 		public InputSource bakeParserSource();
 	}
 	
-	public BakeParserRequestBuilder newRequestBuilder(String startTag)
+	public BakeParserRequestBuilder newRequestBuilder()
 	{
-		return new BakeParserRequestBuilder(startTag);
+		return new BakeParserRequestBuilder();
 	}
 	
 	public void registerListener(BakeParserListener listener) throws ParserConfigurationException, SAXException, IOException
@@ -65,20 +67,15 @@ public class BakeParser {
 		private static class Baker extends DefaultHandler
 		{
 
-			private Hashtable<String,BakeParserRequest> requests;
-			private String currentTag="",startTag="",tempTag="";
-			private BakeParserRequest currentRequest;
-			private BakeParserListener listener;
 			
+			private String currentTag="",tempTag="";
+			private BakeNodeManager manager;
+			private BakeParserListener listener;
+			private BakeNode currentNode;
 			public Baker(BakeParserRequestBuilder requests, BakeParserListener listener)
 			{
-				startTag = requests.getStartTag();
-				this.requests = new Hashtable<String,BakeParserRequest>();
-				for(BakeParserRequest req : requests.getRequests())
-				{
-					this.requests.put(req.getTagName(),req );
-				}
 				
+				this.manager = requests.getRequests();
 				this.listener = listener;
 			}
 			
@@ -88,43 +85,39 @@ public class BakeParser {
 			public void startElement(String arg0, String localName, String qName,
 					Attributes attrs) throws SAXException {
 				tempTag = currentTag;
-				if(qName.equals(startTag))
-				{
+				
 					if(currentTag.equals(""))
 					{
-						currentTag=startTag;
+						currentTag=qName;
 					}
 					else
 					{
 						currentTag+=">"+qName;
 					}
-				}
-				else if(!currentTag.equals(""))
-				{
-					currentTag+=">"+qName;
-				}
 				
-				currentRequest = requests.get(currentTag);
 				
-				if(currentRequest!=null)
+				System.out.println(currentTag);
+				currentNode = manager.findNode(currentTag);
+				
+				if(currentNode!=null)
 				{
-					currentRequest.callStartTagMethod();
+					currentNode.callStartTagMethod();
 					for(int i=0; i<attrs.getLength(); i++)
 					{
 						
-						currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
+						currentNode.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
 					}	
 				}
 				else
 				{
-					currentRequest = requests.get(tempTag+">*");
-					if(currentRequest!=null)
+					currentNode = manager.findNode(tempTag+">*");
+					if(currentNode!=null)
 					{
-						currentRequest.callStartTagMethod(qName);
+						currentNode.callStartTagMethod(qName);
 						for(int i=0; i<attrs.getLength(); i++)
 						{
 							
-							currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
+							currentNode.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
 							
 							
 						}
@@ -135,7 +128,7 @@ public class BakeParser {
 			@Override
 			public void characters(char[] arg0, int arg1, int arg2)
 					throws SAXException {
-				if(currentRequest!=null)
+				if(currentNode!=null)
 				currentContent+=(new String(arg0).substring(arg1, arg1+arg2));
 			}
 
@@ -148,7 +141,7 @@ public class BakeParser {
 				
 				
 				
-					currentRequest = requests.get(currentTag);
+				currentNode = manager.findNode(currentTag);
 					/*
 					 * Remove tag
 					 */
@@ -167,22 +160,22 @@ public class BakeParser {
 						/*
 						 * Calling for current tag
 						 */
-						if(currentRequest!=null)
+						if(currentNode!=null)
 						{
-							currentRequest.callContentMethod(currentContent.trim());
-							currentRequest.callEndTagMethod();
+							currentNode.callContentMethod(currentContent.trim());
+							currentNode.callEndTagMethod();
 						}
 						else
 						{
-							currentRequest = requests.get(currentTag+">*");
-							if(currentRequest!=null)
+							currentNode = manager.findNode(currentTag+">*");
+							if(currentNode!=null)
 							{
-								currentRequest.callContentMethod(currentContent.trim(),qName);
-								currentRequest.callEndTagMethod(qName);
+								currentNode.callContentMethod(currentContent.trim(),qName);
+								currentNode.callEndTagMethod(qName);
 							}
 						}
 						currentContent="";
-						currentRequest = null;
+						currentNode = null;
 						
 						
 				
