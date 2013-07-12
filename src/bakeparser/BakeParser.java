@@ -95,7 +95,7 @@ public class BakeParser {
 						currentTag+=">"+qName;
 					}
 				
-				
+				System.out.println(currentTag);
 				currentNode = manager.findNode(currentTag);
 				
 				if(currentNode!=null)

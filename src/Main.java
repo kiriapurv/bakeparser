@@ -34,7 +34,7 @@ public class Main {
 					builder.addRequest("channel>link", podcast, null, "setLink", null, null);
 					builder.addRequest("item", podcast, "newItem", null, null, null);
 					builder.addRequest("item>title", podcast, "getCurrentItem", null, "set*", null, null);
-					builder.addRequest("item>link", podcast, "getCurrentItem", null, "set*", null, null);
+					builder.addRequest("item>*", podcast, "getCurrentItem", null, "set*", null, null);
 					return builder;
 				}
 

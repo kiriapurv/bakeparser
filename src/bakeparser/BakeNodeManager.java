@@ -8,6 +8,8 @@ public class BakeNodeManager {
 	
 	
 	private Hashtable<String,BakeNode> directory;
+	private static String wildCardName;
+	private static boolean globalWildCard=false;
 	
 	public BakeNodeManager(){
 		directory = new Hashtable<String,BakeNode>();
@@ -38,6 +40,8 @@ public class BakeNodeManager {
 				for(int i=0; i<s.length-1;i++)
 					p+=">"+s[i];
 				p+=">*";
+				wildCardName = s[s.length-1];
+				globalWildCard = true;
 				return directory.get("*").findNode(p);
 			}
 			return null;
@@ -74,7 +78,10 @@ public class BakeNodeManager {
 					if(startTagMethod!=null)
 					startTagMethod = startTagMethod.replace("*",tagName);
 				}
-				
+				else
+				{
+					globalWildCard = true;
+				}
 				String pa = nm[0];
 				
 				for(int i=1;i<nm.length-1;i++)
@@ -103,7 +110,7 @@ public class BakeNodeManager {
 		
 		private void setUpMethods()
 		{
-			if(!tagName.contains("*"))
+			if(!tagName.contains("*") && !globalWildCard)
 			{
 				if(contentMethod!=null)
 				contentMethod = contentMethod.replace("*",tagName);
@@ -111,6 +118,10 @@ public class BakeNodeManager {
 				endTagMethod = endTagMethod.replace("*", tagName);
 				if(startTagMethod!=null)
 				startTagMethod = startTagMethod.replace("*",tagName);
+			}
+			else
+			{
+				globalWildCard = false;
 			}
 		}
 		private void setUpParameters()
@@ -193,6 +204,7 @@ public class BakeNodeManager {
 						return this;
 				}
 			}
+			
 			else if(path.equals(tagName))
 			{
 				return this;
@@ -205,8 +217,14 @@ public class BakeNodeManager {
 		 */
 		private void call(String methodName,Object... content)
 		{
+			
 			if(methodName!=null && callObject!=null)
 			{
+				if(globalWildCard)
+				{
+					globalWildCard = false;
+					methodName = methodName.replace("*", wildCardName);
+				}
 				if(!objectGetterMode)
 				{
 					try {
@@ -239,7 +257,7 @@ public class BakeNodeManager {
 						e.printStackTrace();
 					} catch (NoSuchMethodException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("BAKE PARSER > Method Node Found > "+methodName);
 					}
 				}
 				else
@@ -297,7 +315,7 @@ public class BakeNodeManager {
 						e.printStackTrace();
 					} catch (NoSuchMethodException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("BAKE PARSER > Method Node Found > "+methodName);
 					}
 				}
 			}
@@ -362,7 +380,7 @@ public class BakeNodeManager {
 		public void callEndTagMethod(String tagName)
 		{
 			if(endTagMethod!=null)
-			call(endTagMethod.replace("*", tagName));
+			call(endTagMethod.replace("*", tagName));	
 		}
 		public void callStartTagMethod(String tagName)
 		{
