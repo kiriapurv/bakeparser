@@ -366,10 +366,11 @@ public class BakeParser {
 		SAXParserFactory fact = SAXParserFactory.newInstance();
 		SAXParser parser = fact.newSAXParser();
 		InputStream is = listener.bakeParserStream();
+		InputSource iss = listener.bakeParserSource();
 		if(is!=null)
-		parser.parse(listener.bakeParserStream(), baker);
-		else
-		parser.parse(listener.bakeParserSource(), baker);
+			parser.parse(is, baker);
+		else if(iss!=null)
+			parser.parse(iss, baker);
 	}
 	
 		
