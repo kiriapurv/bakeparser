@@ -52,7 +52,7 @@ public class BakeParser {
 	{
 		public BakeParserRequestBuilder buildRequests();
 		public InputStream bakeParserStream();
-		public void onBakingCompleted();
+		public void onBakingCompleted(char[] response);
 		public InputSource bakeParserSource();
 	}
 	
@@ -457,10 +457,11 @@ public class BakeParser {
 				
 			}
 			
-			
+			private char[] cResponse;
 			@Override
 			public void characters(char[] arg0, int arg1, int arg2)
 					throws SAXException {
+				cResponse = arg0;
 				if(currentRequest!=null)
 				{
 					currentContent+=(new String(arg0).substring(arg1, arg1+arg2));
@@ -522,7 +523,7 @@ public class BakeParser {
 			@Override
 			public void endDocument() throws SAXException {
 				
-				listener.onBakingCompleted();
+				listener.onBakingCompleted(cResponse);
 				
 			}	
 			

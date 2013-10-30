@@ -66,9 +66,10 @@ public class Main {
 						}
 
 						@Override
-						public void onBakingCompleted() {
+						public void onBakingCompleted(char[] response) {
 							
 							podcast.complete();
+							System.out.println(new String(response));
 						}
 
 						@Override
