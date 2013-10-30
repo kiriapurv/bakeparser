@@ -19,7 +19,7 @@ import bakeparser.BakeParser.BakeParserRequestBuilder.BakeParserRequest;
 
 public class BakeParser {
 	
-	/*
+	/**
 	 * @author Apurv Kiri
 	 * 
 	 * README
@@ -30,6 +30,18 @@ public class BakeParser {
 	public static BakeParser newInstance()
 	{
 		return new BakeParser();
+	}
+	
+	private static boolean hierarchy=false,response=false;
+	/**
+	 * Set debuggin mode
+	 * @param hierarchy print xml hierarchy
+	 * @param response print response xml
+	 */
+	public void setDebuggin(boolean hierarchy, boolean response)
+	{
+		this.hierarchy = hierarchy;
+		this.response = response;
 	}
 	/*
 	 * No public constructor
@@ -50,7 +62,7 @@ public class BakeParser {
 	}
 	public static class BakeParserRequestBuilder
 	{
-		/*
+		/**
 		 * Parent tag has to be mentioned.
 		 */
 		private String startTag;
@@ -60,7 +72,7 @@ public class BakeParser {
 			this.startTag = startTag;
 			requests = new LinkedList<BakeParserRequest>();
 		}
-		/*
+		/**
 		 * When <tag> is started, callObject's startMethodName is called, for content contentMethodName is called, for parameter's of the tag, parameterMethodName is called
 		 * for end of tag, endTagMethod is called.
 		 * 
@@ -156,7 +168,7 @@ public class BakeParser {
 					}
 				}
 			}
-			/*
+			/**
 			 * Useful getter setters
 			 */
 			public String getTagName()
@@ -164,7 +176,7 @@ public class BakeParser {
 				return tagName;
 			}
 			
-			/*
+			/**
 			 * Useless getter setters
 			 */
 			public String getContentMethodName()
@@ -176,7 +188,7 @@ public class BakeParser {
 				return parameterMethodName;
 			}
 			
-			/*
+			/**
 			 * Useful methods
 			 */
 			private Object tempCall;
@@ -366,10 +378,11 @@ public class BakeParser {
 		SAXParserFactory fact = SAXParserFactory.newInstance();
 		SAXParser parser = fact.newSAXParser();
 		InputStream is = listener.bakeParserStream();
+		InputSource iss = listener.bakeParserSource();
 		if(is!=null)
-		parser.parse(listener.bakeParserStream(), baker);
-		else
-		parser.parse(listener.bakeParserSource(), baker);
+		parser.parse(is, baker);
+		else if(iss!=null)
+		parser.parse(iss, baker);
 	}
 	
 		
@@ -389,7 +402,7 @@ public class BakeParser {
 				{
 					this.requests.put(req.getTagName(),req );
 				}
-				
+
 				this.listener = listener;
 			}
 			
@@ -415,14 +428,15 @@ public class BakeParser {
 				{
 					currentTag+=">"+qName;
 				}
-				
+				if(hierarchy) System.out.println(currentTag);
+				if(response) System.out.print("\n<"+qName);
 				currentRequest = requests.get(currentTag);
 				if(currentRequest!=null)
 				{
 					currentRequest.callStartTagMethod();
 					for(int i=0; i<attrs.getLength(); i++)
 					{
-						
+						if(response) System.out.print(" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"");
 						currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
 					}	
 				}
@@ -434,17 +448,24 @@ public class BakeParser {
 						currentRequest.callStartTagMethod(qName);
 						for(int i=0; i<attrs.getLength(); i++)
 						{
+							if(response) System.out.print(" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"");
 							currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
 						}
 					}
 				}
+				if(response) System.out.print(">\n");
 				
 			}
+			
+			
 			@Override
 			public void characters(char[] arg0, int arg1, int arg2)
 					throws SAXException {
 				if(currentRequest!=null)
-				currentContent+=(new String(arg0).substring(arg1, arg1+arg2));
+				{
+					currentContent+=(new String(arg0).substring(arg1, arg1+arg2));
+					if(response) System.out.println(currentContent);
+				}
 			}
 
 			
@@ -455,7 +476,7 @@ public class BakeParser {
 					throws SAXException {
 				
 				
-				
+					if(response) System.out.println("</"+qName+">");
 					currentRequest = requests.get(currentTag);
 					/*
 					 * Remove tag
