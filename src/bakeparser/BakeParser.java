@@ -217,22 +217,17 @@ public class BakeParser {
 							
 							
 						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Invalid Argument being passed : "+callObject.getClass().getName()+" > "+methodName);
 						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Method Invokation not Permited : "+callObject.getClass().getName()+" > "+methodName);
 						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Invalid Method Access Modifier : "+callObject.getClass().getName()+" > "+methodName);
 						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Method Invokation Error : "+callObject.getClass().getName()+" > "+methodName);
 						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
 							System.out.println("BakeParser > Method Not Found : "+callObject.getClass().getName()+" > "+methodName);
 						} catch (NullPointerException e) {
-							System.out.println("BakeParser > Null Pointer : "+callObject.getClass().getName()+" > "+methodName);
+							System.out.println("BakeParser > Null Pointer : "+((callObject!=null) ? callObject.getClass().getName() : "Null Object" )+" > "+methodName);
 						}
 						
 					}
@@ -264,7 +259,7 @@ public class BakeParser {
 											tempCall = call;
 											call = call.getClass().getMethod(s).invoke(call);
 											if(call==null)
-												System.out.println("BakeParser > Getter Returned Null Object : "+tempCall.getClass().getName()+" > "+methods[i]);
+												System.out.println("BakeParser > Getter Returned Null Object : "+((tempCall!=null) ? tempCall.getClass().getName() : "Null Object")+" > "+methods[i]);
 									}
 									
 									switch(content.length)
@@ -282,23 +277,17 @@ public class BakeParser {
 							}
 								
 						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Invalid Argument being passed : "+call.getClass().getName()+" > "+methodName);
 						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Method Invokation not Permited : "+call.getClass().getName()+" > "+methodName);
 						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Invalid Method Access Modifier : "+call.getClass().getName()+" > "+methodName);
 						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("BakeParser > Method Invokation Error : "+call.getClass().getName()+" > "+methodName);
 						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
 							System.out.println("BakeParser > Method Not Found : "+call.getClass().getName()+" > "+methodName);
 						} catch (NullPointerException e) {
-							//System.out.println("BakeParser > Null Pointer : "+call.getClass().getName()+" > "+methodName);
-							e.printStackTrace();
+							System.out.println("BakeParser > Null Pointer : "+((call!=null) ? call.getClass().getName() : "Null Object" )+" > "+methodName);
 						}
 					}
 				}
@@ -430,15 +419,12 @@ public class BakeParser {
 				{
 					currentTag+=">"+qName;
 				}
-				if(hierarchy) System.out.println(currentTag);
-				if(response) System.out.print("\n<"+qName);
 				currentRequest = requests.get(currentTag);
 				if(currentRequest!=null)
 				{
 					currentRequest.callStartTagMethod();
 					for(int i=0; i<attrs.getLength(); i++)
 					{
-						if(response) System.out.print(" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"");
 						sResponse+=" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"";
 						currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
 					}	
@@ -451,14 +437,12 @@ public class BakeParser {
 						currentRequest.callStartTagMethod(qName);
 						for(int i=0; i<attrs.getLength(); i++)
 						{
-							if(response) System.out.print(" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"");
 							sResponse+=" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"";
 							currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
 						}
 					}
 				}
 				sResponse+=">";
-				if(response) System.out.print(">\n");
 				
 			}
 			
@@ -471,7 +455,6 @@ public class BakeParser {
 				if(currentRequest!=null)
 				{
 					currentContent+=resp;
-					if(response) System.out.println(currentContent);
 				}
 			}
 
@@ -483,7 +466,6 @@ public class BakeParser {
 					throws SAXException {
 				
 					sResponse+="</"+qName+">";
-					if(response) System.out.println("</"+qName+">");
 					currentRequest = requests.get(currentTag);
 					/*
 					 * Remove tag
