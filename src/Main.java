@@ -66,10 +66,10 @@ public class Main {
 						}
 
 						@Override
-						public void onBakingCompleted(char[] response) {
+						public void onBakingCompleted(String response) {
 							
 							podcast.complete();
-							System.out.println(new String(response));
+							System.out.println(response);
 						}
 
 						@Override

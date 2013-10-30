@@ -1,7 +1,9 @@
 package bakeparser;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -52,7 +54,7 @@ public class BakeParser {
 	{
 		public BakeParserRequestBuilder buildRequests();
 		public InputStream bakeParserStream();
-		public void onBakingCompleted(char[] response);
+		public void onBakingCompleted(String response);
 		public InputSource bakeParserSource();
 	}
 	
@@ -371,6 +373,7 @@ public class BakeParser {
 		}
 		
 	}
+
 	public void registerListener(BakeParserListener listener) throws ParserConfigurationException, SAXException, IOException
 	{
 		Baker baker = new Baker(listener.buildRequests(),listener);
@@ -393,7 +396,7 @@ public class BakeParser {
 			private String currentTag="",startTag="",tempTag="";
 			private BakeParserRequest currentRequest;
 			private BakeParserListener listener;
-			
+			private String sResponse;
 			public Baker(BakeParserRequestBuilder requests, BakeParserListener listener)
 			{
 				startTag = requests.getStartTag();
@@ -402,7 +405,6 @@ public class BakeParser {
 				{
 					this.requests.put(req.getTagName(),req );
 				}
-
 				this.listener = listener;
 			}
 			
@@ -412,7 +414,7 @@ public class BakeParser {
 			public void startElement(String arg0, String localName, String qName,
 					Attributes attrs) throws SAXException {
 				tempTag = currentTag;
-				
+				sResponse+="<"+qName;
 				if(qName.equals(startTag))
 				{
 					if(currentTag.equals(""))
@@ -437,6 +439,7 @@ public class BakeParser {
 					for(int i=0; i<attrs.getLength(); i++)
 					{
 						if(response) System.out.print(" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"");
+						sResponse+=" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"";
 						currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
 					}	
 				}
@@ -449,22 +452,25 @@ public class BakeParser {
 						for(int i=0; i<attrs.getLength(); i++)
 						{
 							if(response) System.out.print(" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"");
+							sResponse+=" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"";
 							currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
 						}
 					}
 				}
+				sResponse+=">";
 				if(response) System.out.print(">\n");
 				
 			}
 			
-			private char[] cResponse;
+
 			@Override
 			public void characters(char[] arg0, int arg1, int arg2)
 					throws SAXException {
-				cResponse = arg0;
+				String resp = (new String(arg0).substring(arg1, arg1+arg2));
+				sResponse+=resp;
 				if(currentRequest!=null)
 				{
-					currentContent+=(new String(arg0).substring(arg1, arg1+arg2));
+					currentContent+=resp;
 					if(response) System.out.println(currentContent);
 				}
 			}
@@ -476,7 +482,7 @@ public class BakeParser {
 			public void endElement(String arg0, String localName, String qName)
 					throws SAXException {
 				
-				
+					sResponse+="</"+qName+">";
 					if(response) System.out.println("</"+qName+">");
 					currentRequest = requests.get(currentTag);
 					/*
@@ -523,7 +529,7 @@ public class BakeParser {
 			@Override
 			public void endDocument() throws SAXException {
 				
-				listener.onBakingCompleted(cResponse);
+				listener.onBakingCompleted(sResponse);
 				
 			}	
 			
