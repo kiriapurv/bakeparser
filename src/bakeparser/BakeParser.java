@@ -1,9 +1,7 @@
 package bakeparser;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -12,53 +10,39 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
-import bakeparser.BakeParser.BakeParserRequestBuilder.BakeParserRequest;
-
+/**
+ * @author Apurv Kiri
+ * 
+ * README
+ * - BakeParser supports as needed parsing
+ * - Provide tag to parse as "parent>child1>child2" provide object and object's method which must have string argument
+ * - Parser will bake object for you.
+ */
 public class BakeParser {
 	
-	/**
-	 * @author Apurv Kiri
-	 * 
-	 * README
-	 * - Bakeparser supports as needed parsing
-	 * - Provide tag to parse as "parent>child1>child2" provide object and object's method which must have string argument
-	 * - Parser will bake object for you.
-	 */
-	public static BakeParser newInstance()
+	public static BakeParser newInstance(BakeParserRequestBuilder requestBuilder)
 	{
-		return new BakeParser();
+		return new BakeParser(requestBuilder);
 	}
 	
-	private static boolean hierarchy=false,response=false;
-	/**
-	 * Set debuggin mode
-	 * @param hierarchy print xml hierarchy
-	 * @param response print response xml
-	 */
-	public void setDebuggin(boolean hierarchy, boolean response)
-	{
-		this.hierarchy = hierarchy;
-		this.response = response;
-	}
+	private BakeParserRequestBuilder mRequestBuilder;
+	private BakeParserListener mListener;
 	/*
 	 * No public constructor
 	 */
-	private BakeParser(){}
+	private BakeParser(BakeParserRequestBuilder requestBuilder){
+		mRequestBuilder = requestBuilder;
+	}
 	
 	public static interface BakeParserListener
 	{
-		public BakeParserRequestBuilder buildRequests();
-		public InputStream bakeParserStream();
 		public void onBakingCompleted(String response);
-		public InputSource bakeParserSource();
 	}
 	
-	public BakeParserRequestBuilder newRequestBuilder(String startTag)
+	public static BakeParserRequestBuilder newRequestBuilder(String startTag)
 	{
 		return new BakeParserRequestBuilder(startTag);
 	}
@@ -85,26 +69,57 @@ public class BakeParser {
 		 * contentMethod has one String parameter
 		 * parameter method has two string parameters as key,value
 		 * endTag method has no parameters
+		 * 
+		 * @param tagName Tag path, on occurrence of which the methods will be invoked
+		 * @param callObject Object of which the methods will be called
+		 * @param startMethodName Called when tag is started
+		 * @param contentMethodName Called when content is captured
+		 * @param parameterMethodName Called when parameters are captured
+		 * @param endTagMethod Called when tag is ended
+		 * @return Current builder
+		 * 
 		 */
 		public BakeParserRequestBuilder addRequest(String tagName, Object callObject,String startMethodName, String contentMethodName,String parameterMethodName,String endTagMethod)
 		{
 			requests.add(new BakeParserRequest(tagName, callObject,startMethodName ,contentMethodName, parameterMethodName,endTagMethod));
 			return this;
 		}
+		/**
+		 * 
+		 * @param tagName Tag path, on occurrence of which the methods will be invoked
+		 * @param callObject Object of which the methods will be called
+		 * @param callObjectGetter In case when methods has to be invoked on the object returned by callObjectGetter parameter method name
+		 * @param startMethodName Called when tag is started
+		 * @param contentMethodName Called when content is captured
+		 * @param parameterMethodName Called when parameters are captured
+		 * @param endTagMethod Called when tag is ended
+		 * @return Current builder
+		 */
 		public BakeParserRequestBuilder addRequest(String tagName, Object callObject, String callObjectGetter,String startMethodName, String contentMethodName,String parameterMethodName,String endTagMethod)
 		{
 			requests.add(new BakeParserRequest(tagName, callObject, callObjectGetter ,startMethodName ,contentMethodName, parameterMethodName,endTagMethod));
 			return this;
 		}
+		/**
+		 * Sets starting tag
+		 * @param startTag name of starting tag
+		 */
 		public void setStartTag(String startTag)
 		{
 			this.startTag = startTag;
 		}
-		
+		/**
+		 * 
+		 * @return Returns start tag
+		 */
 		public String getStartTag()
 		{
 			return startTag;
 		}
+		/**
+		 * 
+		 * @return List of requests ( used by BakeParser )
+		 */
 		public LinkedList<BakeParserRequest> getRequests()
 		{
 			return requests;
@@ -362,164 +377,38 @@ public class BakeParser {
 		}
 		
 	}
-
-	public void registerListener(BakeParserListener listener) throws ParserConfigurationException, SAXException, IOException
-	{
-		Baker baker = new Baker(listener.buildRequests(),listener);
+	/**
+	 * Set listener which will be invoked for response xml content
+	 * @param listener Listener instance
+	 */
+	public void setListener(BakeParserListener listener) {
+		this.mListener = listener;
+	}	
+	/**
+	 * Will parse the data of given InputSource and fill the objects provided in BakeParserRequestBuilder
+	 * @param is InputSource of data
+	 * @throws SAXException In case of invalid xml
+	 * @throws IOException In case of io error
+	 * @throws ParserConfigurationException In case of invalid configuration done by BakeParser for SAXParser
+	 */
+	public void parse(InputSource is) throws SAXException, IOException, ParserConfigurationException {
 		
-		SAXParserFactory fact = SAXParserFactory.newInstance();
-		SAXParser parser = fact.newSAXParser();
-		InputStream is = listener.bakeParserStream();
-		InputSource iss = listener.bakeParserSource();
-		if(is!=null)
-		parser.parse(is, baker);
-		else if(iss!=null)
-		parser.parse(iss, baker);
+		Baker baker = new Baker(mRequestBuilder, mListener);
+		
+		SAXParserFactory saxFactory = SAXParserFactory.newInstance();
+		SAXParser saxParser = saxFactory.newSAXParser();
+		saxParser.parse(is, baker);
+		
 	}
-	
-		
-		private static class Baker extends DefaultHandler
-		{
-
-			private Hashtable<String,BakeParserRequest> requests;
-			private String currentTag="",startTag="",tempTag="";
-			private BakeParserRequest currentRequest;
-			private BakeParserListener listener;
-			private String sResponse;
-			public Baker(BakeParserRequestBuilder requests, BakeParserListener listener)
-			{
-				startTag = requests.getStartTag();
-				this.requests = new Hashtable<String,BakeParserRequest>();
-				for(BakeParserRequest req : requests.getRequests())
-				{
-					this.requests.put(req.getTagName(),req );
-				}
-				this.listener = listener;
-			}
-			
-			private String currentContent="";
-
-			@Override
-			public void startElement(String arg0, String localName, String qName,
-					Attributes attrs) throws SAXException {
-				tempTag = currentTag;
-				sResponse+="<"+qName;
-				if(qName.equals(startTag))
-				{
-					if(currentTag.equals(""))
-					{
-						currentTag=startTag;
-					}
-					else
-					{
-						currentTag+=">"+qName;
-					}
-				}
-				else if(!currentTag.equals(""))
-				{
-					currentTag+=">"+qName;
-				}
-				currentRequest = requests.get(currentTag);
-				if(currentRequest!=null)
-				{
-					currentRequest.callStartTagMethod();
-					for(int i=0; i<attrs.getLength(); i++)
-					{
-						sResponse+=" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"";
-						currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
-					}	
-				}
-				else
-				{
-					currentRequest = requests.get(tempTag+">*");
-					if(currentRequest!=null)
-					{
-						currentRequest.callStartTagMethod(qName);
-						for(int i=0; i<attrs.getLength(); i++)
-						{
-							sResponse+=" "+attrs.getQName(i)+"=\""+attrs.getValue(i)+"\"";
-							currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
-						}
-					}
-				}
-				sResponse+=">";
-				
-			}
-			
-
-			@Override
-			public void characters(char[] arg0, int arg1, int arg2)
-					throws SAXException {
-				String resp = (new String(arg0).substring(arg1, arg1+arg2));
-				sResponse+=resp;
-				if(currentRequest!=null)
-				{
-					currentContent+=resp;
-				}
-			}
-
-			
-			private String exp[];
-			
-			@Override
-			public void endElement(String arg0, String localName, String qName)
-					throws SAXException {
-				
-					sResponse+="</"+qName+">";
-					currentRequest = requests.get(currentTag);
-					/*
-					 * Remove tag
-					 */
-					exp = null;
-					exp = currentTag.split(">");
-					if(exp.length!=0)
-					{
-						currentTag=exp[0];
-						for(int i=1; i< exp.length-1; i++)
-						{
-							currentTag+=">"+exp[i];
-							
-						}
-					}
-					
-						/*
-						 * Calling for current tag
-						 */
-						if(currentRequest!=null)
-						{
-							if(!currentContent.trim().equals(""))
-							currentRequest.callContentMethod(currentContent.trim());
-							currentRequest.callEndTagMethod();
-						}
-						else
-						{
-							currentRequest = requests.get(currentTag+">*");
-							if(currentRequest!=null)
-							{
-								if(!currentContent.trim().equals(""))
-								currentRequest.callContentMethod(currentContent.trim(),qName);
-								currentRequest.callEndTagMethod(qName);
-							}
-						}
-						currentContent="";
-						currentRequest = null;
-						
-						
-				
-			}
-			
-			@Override
-			public void endDocument() throws SAXException {
-				
-				listener.onBakingCompleted(sResponse);
-				
-			}	
-			
-		}
-		
-		
-		
-	
-	
+	/**
+	 * Will parse the data of given InputStream and fill the objects provided in BakeParserRequestBuilder
+	 * @param is InputStream of data
+	 * @throws SAXException In case of invalid xml
+	 * @throws IOException In case of io error
+	 * @throws ParserConfigurationException In case of invalid configuration done by BakeParser for SAXParser
+	 */
+	public void parse(InputStream is) throws SAXException, IOException, ParserConfigurationException {
+		parse(new InputSource(is));
+	}
 
 }

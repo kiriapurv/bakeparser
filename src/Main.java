@@ -1,13 +1,8 @@
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import bakeparser.BakeParser;
@@ -24,69 +19,65 @@ public class Main {
 		Thread tr = new Thread(new Runnable(){
 			public void run()
 			{
-				parser = BakeParser.newInstance();
 				podcast = new NasaPodcasts();
+				
+				BakeParserRequestBuilder builder = BakeParser.newRequestBuilder("channel");
+				
+				/*
+				 * For content of <title> tag call setTitle method of podcast object
+				 */
+				builder.addRequest("channel>title", podcast, null, "setTitle", null, null);
+				/*
+				 * For content of <link> tag call setLink method of podcast object
+				 */
+				builder.addRequest("channel>link", podcast, null, "setLink", null, null);
+				/*
+				 * For content of <description> tag call setDescription method of podcast object
+				 */
+				builder.addRequest("channel>description", podcast, null, "setDescription", null, null);
+				
+				/*
+				 * For <item> tag when tag is started, call newItem method of podcast object, and when tag ends call addItem method of podcast object
+				 */
+				builder.addRequest("channel>item", podcast, "newItem", null, null,"addItem");
+				
+				//builder.addRequest("channel>item>*", podcast, null,"set*", null,null);
+				/*
+				 * For <title> tag under <item> invoke both methodOne and methodTwo when tag is started as well as when content is captured
+				 */
+				builder.addRequest("channel>item>title", podcast, "methodOne,methodTwo", "methodOne,methodTwo", null, null);
+				/*
+				 * For <link> tag under <item> tag, first call getOO method of podcast object, and whatever object is returned by it (say foo ), call setText method of object foo for content of link tag
+				 */
+				builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
+				/*
+				 * For <pubDate> tag first call getOO method of podcast ( which returns foo object ), then call getBB method of object foo (which returns bar object ) and then call setText method of bar object for content of pubDate
+				 */
+				builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
+				
+				builder.addRequest("channel>item>description", podcast, null,"setItemDescription", null,null);
+				
+				/*
+				 * For parameters of <enclosure> tag, if "url" parameter is captured then parameterTest method will be called, for every else parameter setItemEnclosure method will be called
+				 */
+				builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "url>parameterTest|*>setItemEnclosure","closeItemEnclosure");
+				
+				parser = BakeParser.newInstance(builder);
+				
+				parser.setListener(new BakeParserListener() {
+
+					@Override
+					public void onBakingCompleted(String response) {
+						System.out.println(response);
+					}
+					
+				});
+				
 				try {
-					parser.registerListener(new BakeParserListener(){
-
-						@Override
-						public BakeParserRequestBuilder buildRequests() {
-							BakeParserRequestBuilder builder = parser.newRequestBuilder("channel");
-							
-							builder.addRequest("channel>title", podcast, null, "setTitle", null, null);
-							builder.addRequest("channel>link", podcast, null, "setLink", null, null);
-							builder.addRequest("channel>description", podcast, null, "setDescription", null, null);
-							
-							builder.addRequest("channel>item", podcast, "newItem", null, null,"addItem");
-							/* Wildcard, will cause exceptions for unhandled tags */
-							//builder.addRequest("channel>item>*", podcast, null,"set*", null,null);
-							builder.addRequest("channel>item>title", podcast, "methodOne,methodTwo", "methodOne,methodTwo", null, null);
-							
-							builder.addRequest("channel>item>link", podcast,"getOO" ,null,"setText", null,null);
-							builder.addRequest("channel>item>pubDate", podcast,"getOO>getBB" ,null,"setText", null,null);
-							builder.addRequest("channel>item>description", podcast, null,"setItemDescription", null,null);
-							builder.addRequest("channel>item>enclosure", podcast, "startItemEnclosure",null, "url>parameterTest|*>setItemEnclosure","closeItemEnclosure");
-							return builder;
-						}
-
-						@Override
-						public InputStream bakeParserStream() {
-							URL url;
-							try {
-								url = new URL("http://science1.nasa.gov/media/medialibrary/2010/12/09/podcast__.xml");
-								return url.openStream();
-							} catch (MalformedURLException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							return null;
-						}
-
-						@Override
-						public void onBakingCompleted(String response) {
-							
-							podcast.complete();
-							System.out.println(response);
-						}
-
-						@Override
-						public InputSource bakeParserSource() {
-							// TODO Auto-generated method stub
-							return null;
-						}
-						
-					});
-				} catch (ParserConfigurationException e) {
-					
-					e.printStackTrace();
-				} catch (SAXException e) {
-					
-					e.printStackTrace();
-				} catch (IOException e) {
-					
+					parser.parse(new URL("http://science1.nasa.gov/media/medialibrary/2010/12/09/podcast__.xml").openStream());
+				} catch (SAXException | IOException
+						| ParserConfigurationException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -100,7 +91,7 @@ public class Main {
 		{
 			try
 			{
-				Thread.sleep(500);
+				Thread.sleep(300);
 			}
 			catch (Exception e)
 			{
@@ -165,10 +156,7 @@ public class Main {
 		{
 			items = new LinkedList<Item>();
 		}
-		public void complete()
-		{
-			p("----- Completed --- : Added "+items.size()+" Items");
-		}
+		
 		public void setTitle(String title) {
 			waitwait();
 			p("Title : "+title);
