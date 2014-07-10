@@ -13,16 +13,18 @@ import bakeparser.BakeParser.BakeParserRequestBuilder.BakeParserRequest;
 public class Baker extends DefaultHandler {
 
 	private Hashtable<String,BakeParserRequest> requests;
-	private String currentTag="",startTag="",tempTag="";
 	private BakeParserRequest currentRequest;
 	private BakeParserListener listener;
 	private StringBuilder sResponse, currentContent;
 	private boolean isInitiated = false;
+	private TagStack tagStack;
+	private String startTag, currentTag;
 	
 	public Baker(BakeParserRequestBuilder requests, BakeParserListener listener)
 	{
 		sResponse = new StringBuilder();
 		currentContent = new StringBuilder();
+		tagStack = new TagStack();
 		startTag = requests.getStartTag();
 		this.requests = new Hashtable<String,BakeParserRequest>();
 		for(BakeParserRequest req : requests.getRequests()) {
@@ -35,17 +37,18 @@ public class Baker extends DefaultHandler {
 	public void startElement(String arg0, String localName, String qName,
 			Attributes attrs) throws SAXException {
 		
-		tempTag = currentTag;
 		sResponse.append("<").append(qName);
 		
 		if(qName.equals(startTag) && !isInitiated) {
-			currentTag = startTag;
+			tagStack.push(startTag);
 			isInitiated = true;
 		}
-		else {
-			currentTag+=">"+qName;
+		else if(isInitiated) {
+			tagStack.push(qName);
 		}
 		
+		currentTag = tagStack.getHierarchy();
+		System.out.println("Current Tag : "+currentTag);
 		if(requests.containsKey(currentTag)) {
 			currentRequest = requests.get(currentTag);
 			currentRequest.callStartTagMethod();
@@ -54,14 +57,16 @@ public class Baker extends DefaultHandler {
 				currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i));
 			}	
 		}
-		else if(requests.containsKey(tempTag+">*")) {
-			currentRequest = requests.get(tempTag+">*");
+		else if(requests.containsKey(tagStack.getWildCardHierarchy())) {
+			
+			currentRequest = requests.get(tagStack.restoreWildCard());
 			currentRequest.callStartTagMethod(qName);
 			for(int i=0; i<attrs.getLength(); i++) {
 					sResponse.append(" ").append(attrs.getQName(i)).append("=\"").append(attrs.getValue(i)).append("\"");
 					currentRequest.callParameterMethod(attrs.getQName(i), attrs.getValue(i),qName);
 			}
 		}
+		tagStack.restoreWildCard();
 		sResponse.append(">");
 		
 	}
@@ -76,9 +81,6 @@ public class Baker extends DefaultHandler {
 			currentContent.append(resp);
 		}
 	}
-
-	
-	private String exp[];
 	
 	@Override
 	public void endElement(String arg0, String localName, String qName)
@@ -89,34 +91,29 @@ public class Baker extends DefaultHandler {
 			/*
 			 * Remove tag
 			 */
-			exp = null;
-			exp = currentTag.split(">");
-			if(exp.length!=0) {
-				currentTag=exp[0];
-				for(int i=1; i< exp.length-1; i++) {
-					currentTag+=">"+exp[i];
-					
-				}
-			}
+			if(!tagStack.isEmpty()) {
+				tagStack.pop();
 			
-			/*
-			 * Calling for current tag
-			 */
-			if(currentRequest!=null) {
-				if(!currentContent.toString().trim().equals(""))
-				currentRequest.callContentMethod(currentContent.toString().trim());
-				currentRequest.callEndTagMethod();
-			}
-			else {
-				currentRequest = requests.get(currentTag+">*");
+				/*
+				 * Calling for current tag
+				 */
 				if(currentRequest!=null) {
 					if(!currentContent.toString().trim().equals(""))
-						currentRequest.callContentMethod(currentContent.toString().trim(),qName);
-					currentRequest.callEndTagMethod(qName);
+						currentRequest.callContentMethod(currentContent.toString().trim());
+					currentRequest.callEndTagMethod();
 				}
+				else {
+					currentRequest = requests.get(tagStack.getWildCardHierarchy());
+					if(currentRequest!=null) {
+						if(!currentContent.toString().trim().equals(""))
+							currentRequest.callContentMethod(currentContent.toString().trim(),qName);
+						currentRequest.callEndTagMethod(qName);
+					}
+				}
+				tagStack.restoreWildCard();
+				currentContent.setLength(0);
+				currentRequest = null;
 			}
-			currentContent.setLength(0);
-			currentRequest = null;
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ import java.net.URL;
 import java.util.LinkedList;
 
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.xml.sax.SAXException;
 
 import bakeparser.BakeParser;
@@ -87,45 +88,28 @@ public class Main {
 
 	public static class NasaPodcasts
 	{
-		private void waitwait()
-		{
-			try
-			{
-				Thread.sleep(300);
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-		}
 		public void methodOne()
 		{
-			waitwait();
 			p("Method 1");
 		}
 		public void methodTwo()
 		{
-			waitwait();
 			p("Method 2");
 		}
 		public void methodOne(String s)
 		{
-			waitwait();
 			p("Method 1 : "+s);
 		}
 		public void methodTwo(String s)
 		{
-			waitwait();
 			p("Method 2 : "+s);
 		}
 		public OO getOO()
 		{
-			waitwait();
 			return new OO();
 		}
 		public void settitle(String str)
 		{
-			waitwait();
 			p("Wildcard -> "+str);
 		}
 		public static class OO
@@ -158,19 +142,16 @@ public class Main {
 		}
 		
 		public void setTitle(String title) {
-			waitwait();
 			p("Title : "+title);
 			this.title = title;
 		}
 
 		public void setLink(String link) {
-			waitwait();
 			p("Link : "+link);
 			this.link = link;
 		}
 
 		public void setDescription(String description) {
-			waitwait();
 			p("Description : "+description);
 			this.description = description;
 		}
